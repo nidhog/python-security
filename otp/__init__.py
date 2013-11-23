@@ -37,11 +37,40 @@ class OTP:
 
         Returns:
         The generated HOTP value of the specified length.
-        .
+
         """
         HS = hmac.new(secret, struct.pack('>Q', counter), hashlib.sha1).digest()
         sbit = self._dynamic_truncate(HS)
         return str(sbit % (10**length)).zfill(length)
+
+    def validate_hotp(self, hotp, secret, counter, length=6, look_ahead=3):
+        """Validates an HOTP value.
+
+        Keyword arguments:
+        hotp -- The HOTP value to be validated.
+        secret -- The shared secret used to generate the HOTP value. This secret
+        should be 160 bits as per RFC 4226.
+        counter -- The counter value used to generate the HOTP value. The counter
+        must be 8 bytes long and synchronized between the client and server.
+        length -- The length of the HOTP value to generate. (default 6)
+        look_ahead -- The look-ahead window for calculating the validity of the
+        HOTP value. (default 3)
+
+        Returns:
+        True if the HOTP value is valid, False if the value is invalid.
+
+        """
+
+        validity = False
+
+        for i in xrange(look_ahead):
+            if self.generate_hotp(secret, counter, length) == hotp:
+                validity = True
+                break
+            else:
+                counter += 1
+
+        return validity
 
     def generate_totp(self, secret, time, length=6):
         """Generates an TOTP value.

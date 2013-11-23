@@ -1,17 +1,15 @@
-import unittest
+from unittest import TestCase
 from otp import OTP
 
 __author__ = 'Terry Chia'
 
 
-class TestOTP(unittest.TestCase):
-
+class TestOTP(TestCase):
     def setUp(self):
         self.otp = OTP()
         self.secret = '12345678901234567890'
 
     def test_generate_hotp(self):
-
         # Test vectors taken from RFC 4226, Appendix E
 
         self.assertEqual('755224', self.otp.generate_hotp(self.secret, 0))
@@ -26,7 +24,6 @@ class TestOTP(unittest.TestCase):
         self.assertEqual('520489', self.otp.generate_hotp(self.secret, 9))
 
     def test_generate_totp(self):
-
         # Test vectors taken from RFC 6238, Appendix B
 
         self.assertEqual('94287082', self.otp.generate_totp(self.secret, 59, 8))
@@ -35,3 +32,8 @@ class TestOTP(unittest.TestCase):
         self.assertEqual('89005924', self.otp.generate_totp(self.secret, 1234567890, 8))
         self.assertEqual('69279037', self.otp.generate_totp(self.secret, 2000000000, 8))
         self.assertEqual('65353130', self.otp.generate_totp(self.secret, 20000000000, 8))
+
+    def test_validate_hotp(self):
+        self.assertTrue(self.otp.validate_hotp('755224', self.secret, 0))
+        self.assertTrue(self.otp.validate_hotp('287082', self.secret, 0))
+        self.assertFalse(self.otp.validate_hotp('969429', self.secret, 0))
