@@ -37,3 +37,10 @@ class TestOTP(TestCase):
         self.assertTrue(self.otp.validate_hotp('755224', self.secret, 0))
         self.assertTrue(self.otp.validate_hotp('287082', self.secret, 0))
         self.assertFalse(self.otp.validate_hotp('969429', self.secret, 0))
+
+    def test_validate_totp(self):
+        self.assertTrue(self.otp.validate_totp('07081804', self.secret, 1111111109, 8))
+        self.assertTrue(self.otp.validate_totp('07081804', self.secret, 1111111084, 8))
+        self.assertFalse(self.otp.validate_totp('07081804', self.secret, 1111111078, 8))
+        self.assertTrue(self.otp.validate_totp('07081804', self.secret, 1111111134, 8))
+        self.assertFalse(self.otp.validate_totp('07081804', self.secret, 1111111140, 8))

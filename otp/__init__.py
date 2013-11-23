@@ -89,6 +89,34 @@ class OTP:
         totp = self.generate_hotp(secret, int(math.floor(time/30)), length)
         return totp.zfill(length)
 
+    def validate_totp(self, totp, secret, time, length=6):
+        """Validates an TOTP value.
+
+        Keyword arguments:
+        hotp -- The TOTP value to be validated.
+        secret -- The shared secret used to generate the TOTP value. This secret
+        should be 160 bits as per RFC 4226.
+        time -- The time value used to generate the TOTP value. The time value is
+        the current unix time expressed as an integer.
+        length -- The length of the HOTP value to generate. (default 6)
+
+        Returns:
+        True if the TOTP value is valid, False if the value is invalid.
+
+        """
+        validity = False
+
+        if self.generate_totp(secret, time, length) == totp:
+            validity = True
+
+        if self.generate_totp(secret, time-30, length) == totp:
+            validity = True
+
+        if self.generate_totp(secret, time+30, length) == totp:
+            validtiy = True
+
+        return validity
+
     def _dynamic_truncate(self, hmac_value):
         """Extracts a 4 byte binary value from a 20 byte HMAC-SHA1 result
 
