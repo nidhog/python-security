@@ -4,11 +4,23 @@ import random
 import struct
 import math
 import time
+import qrcode
 
 __author__ = 'Terry Chia'
 
 
-class OTP:
+class OTP(object):
+    """Contains functions to generate & encode HOTP & TOTP one time passwords
+
+    Public methods:
+    generate_secret()
+    generate_hotp()
+    generate_totp()
+    validate_hotp()
+    validate_totp()
+    encode()
+
+    """
 
     def generate_secret(self, size_in_bits=160):
         """Securely generates random secret using the system's CSPRNG.
@@ -118,7 +130,7 @@ class OTP:
         return validity
 
     def _dynamic_truncate(self, hmac_value):
-        """Extracts a 4 byte binary value from a 20 byte HMAC-SHA1 result
+        """Extracts a 4 byte binary value from a 20 byte HMAC-SHA1 result.
 
         This function is described in RFC 4226 Section 5.3
 
@@ -137,3 +149,35 @@ class OTP:
     def _get_current_unix_time(self):
         """Returns the current unix time as an integer."""
         return int(time.time())
+
+    @staticmethod
+    def encode(user, secret, organization, otp_type):
+        """Encodes a HOTP or TOTP URL into a QR Code.
+
+        The URL format conforms to what is expected by Google Authenticator.
+        https://code.google.com/p/google-authenticator/wiki/KeyUriFormat
+
+        Keyword arguments:
+        user -- The user of the HOTP or TOTP secret
+        secret -- The shared secret used to generate the TOTP value
+        organization -- The issuer for the HOTP or TOTP secret
+        otp_type -- The OTP type. Accepted values are hotp or totp
+
+        Returns:
+        The encoded QR Code image as a PIL Image type.
+
+        """
+
+        otp_types = ['hotp', 'totp']
+
+        if otp_type not in otp_types:
+            raise IncorrectOTPType()
+
+        url = ''.join(['otpauth://', otp_type, '/', organization,
+                       ':', user, '?', 'secret=', secret])
+
+        return qrcode.make(url)
+
+
+class IncorrectOTPType(Exception):
+    pass

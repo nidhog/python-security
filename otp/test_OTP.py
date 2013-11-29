@@ -1,5 +1,5 @@
 from unittest import TestCase
-from otp import OTP
+from otp import OTP, IncorrectOTPType
 
 __author__ = 'Terry Chia'
 
@@ -44,3 +44,6 @@ class TestOTP(TestCase):
         self.assertFalse(self.otp.validate_totp('07081804', self.secret, 1111111078, 8))
         self.assertTrue(self.otp.validate_totp('07081804', self.secret, 1111111134, 8))
         self.assertFalse(self.otp.validate_totp('07081804', self.secret, 1111111140, 8))
+
+    def test_encode(self):
+        self.assertRaises(IncorrectOTPType, self.otp.encode, 'asdf', 'asdf', 'asdf', 'asdf')

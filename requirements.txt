@@ -1,0 +1,4 @@
+Pillow==2.2.1
+qrcode==4.0.4
+six==1.4.1
+wsgiref==0.1.2
